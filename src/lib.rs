@@ -18,13 +18,19 @@ macro_rules! with_unsized_new{
             }
 
             impl $name {
-                unsafe fn create_unchecked<const S: usize>($($f: $t,)* $sl_f: [$sl_t; S]) -> Box<$name>{
+                /// Creates a boxed instance of this struct.
+                fn create_unchecked<const S: usize>($($f: $t,)* $sl_f: [$sl_t; S]) -> Box<$name>{
                     let similar: [< $name _generic >] <[$sl_t; S]> = [< $name _generic >] {
                         $($f,)* $sl_f
                     };
                     let boxed = Box::new(similar);
                     let boxed_unsized: Box<[< $name _generic >] <[$sl_t]>> = boxed;
-                    return ::std::mem::transmute::<Box<[< $name _generic >] <[$sl_t]>>, Box<$name>>(boxed_unsized);
+                    return unsafe{
+                        // safety: X and X_generic<[S]> have the same memory layout,
+                        // and so does Box<X> and Box<X_generic<[S]>>,
+                        // guaranteed by their #[repr(C)]
+                        ::std::mem::transmute::<Box<[< $name _generic >] <[$sl_t]>>, Box<$name>>(boxed_unsized)
+                    };
                 }
             }
         }
@@ -45,9 +51,7 @@ mod tests{
 
     #[test]
     fn test_basic(){
-        let usized: Box<S> = unsafe{
-            S::create_unchecked(1, 2, [33, 44, 55, 66])
-        };
+        let usized: Box<S> = S::create_unchecked(1, 2, [33, 44, 55, 66]);
         println!("{usized:?}");
     }
 }
