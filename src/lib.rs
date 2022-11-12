@@ -1,3 +1,4 @@
+#[macro_export]
 macro_rules! with_unsized_new{
     ($(#[$($m:tt)*])* struct $name:ident { $($f:ident: $t:ty ,)* ~ $sl_f:ident: [$sl_t:ty] $(,)?}) => {
         // the struct itself
