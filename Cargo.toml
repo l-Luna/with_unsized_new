@@ -1,0 +1,9 @@
+[package]
+name = "with_unsized_new"
+version = "0.0.0"
+authors = ["l-Luna <izzeldeen03@gmail.com>"]
+description = "A macro for creating `new` functions for custom unsized types."
+edition = "2021"
+
+[dependencies]
+paste = "1.0.9"
